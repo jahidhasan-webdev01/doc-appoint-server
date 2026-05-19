@@ -26,6 +26,7 @@ async function run() {
 
         const db = client.db('doc-appoints');
         const doctorsCollection = db.collection('doctors');
+        const appointmentsCollection = db.collection('appointments');
 
         // Get all doctors
         app.get("/doctors", async (req, res) => {
@@ -40,6 +41,14 @@ async function run() {
             const data = await doctorsCollection.findOne({ _id: new ObjectId(id) });
 
             res.send(data)
+        })
+
+        // Book an appointment
+        app.post("/appointments", async (req, res) => {
+            const data = req.body;
+            const result = await appointmentsCollection.insertOne(data)
+
+            res.send(result);
         })
 
 
