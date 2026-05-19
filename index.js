@@ -53,10 +53,18 @@ async function run() {
 
         // Get all booking appointments by email
         app.get("/appointments/:email", async (req, res) => {
-            const {email} = req.params;
-            const data = await appointmentsCollection.find({userEmail: email}).toArray();
+            const { email } = req.params;
+            const data = await appointmentsCollection.find({ userEmail: email }).toArray();
 
             res.send(data)
+        })
+
+        // Delete appoinment by ID
+        app.delete("/appoinment/:id", async (req, res) => {
+            const { id } = req.params;
+            const result = await appointmentsCollection.deleteOne({ _id: new ObjectId(id) })
+
+            res.send(result)
         })
 
 
