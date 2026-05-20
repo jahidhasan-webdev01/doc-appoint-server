@@ -85,6 +85,29 @@ async function run() {
             res.send(result)
         })
 
+        // Give rating to doctor
+        app.patch("/give-rating/:doctorName", async (req, res) => {
+            const { doctorName } = req.params;
+            const { rating } = req.body;
+
+            const doctor = await doctorsCollection.findOne({
+                name: doctorName
+            });
+
+            const updatedRating = (doctor.rating + rating) / 2;
+
+            const result = await doctorsCollection.updateOne(
+                { name: doctorName },
+                {
+                    $set: {
+                        rating: updatedRating
+                    }
+                }
+            );
+
+            res.send(result);
+        });
+
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
