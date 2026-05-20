@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-
+const { createRemoteJWKSet, jwtVerify } = require('jose-cjs');
 
 const port = process.env.PORT || 8000;
 
@@ -20,6 +20,29 @@ const client = new MongoClient(process.env.DB_URI, {
     }
 });
 
+const JWKS = createRemoteJWKSet(
+    new URL('http://localhost:3000/api/auth/jwks')
+)
+
+const verifyJWTToken = async (req, res, next) => {
+    const authHeader = req?.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).json({ message: "Unauthorize" })
+    }
+
+    const token = authHeader.split(" ")[1]
+    if (!token) {
+        return res.status(401).json({ message: "Unauthorize" })
+    }
+
+    try {
+        const { payload } = await jwtVerify(token, JWKS)
+        next()
+    } catch (error) {
+        return res.status(403).json({ message: "Forbidden" })
+    }
+}
+
 async function run() {
     try {
         await client.connect();
@@ -36,7 +59,7 @@ async function run() {
         })
 
         // Get a doctor by ID
-        app.get("/doctor/:id", async (req, res) => {
+        app.get("/doctor/:id", verifyJWTToken, async (req, res) => {
             const { id } = req.params;
             const data = await doctorsCollection.findOne({ _id: new ObjectId(id) });
 
