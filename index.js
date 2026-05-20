@@ -43,6 +43,13 @@ async function run() {
             res.send(data)
         })
 
+        // Get top rated doctors
+        app.get("/top-doctors", async (req, res) => {
+            const data = await doctorsCollection.find().sort({ rating: -1 }).limit(3).toArray()
+
+            res.send(data)
+        })
+
         // Book an appointment
         app.post("/appointments", async (req, res) => {
             const data = req.body;
