@@ -21,7 +21,7 @@ const client = new MongoClient(process.env.DB_URI, {
 });
 
 const JWKS = createRemoteJWKSet(
-    new URL('http://localhost:3000/api/auth/jwks')
+    new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
 )
 
 const verifyJWTToken = async (req, res, next) => {
@@ -74,7 +74,7 @@ async function run() {
         })
 
         // Book an appointment
-        app.post("/appointments", async (req, res) => {
+        app.post("/appointments", verifyJWTToken, async (req, res) => {
             const data = req.body;
             const result = await appointmentsCollection.insertOne(data)
 
@@ -82,7 +82,7 @@ async function run() {
         })
 
         // Get all booking appointments by email
-        app.get("/appointments/:email", async (req, res) => {
+        app.get("/appointments/:email", verifyJWTToken, async (req, res) => {
             const { email } = req.params;
             const data = await appointmentsCollection.find({ userEmail: email }).toArray();
 
@@ -90,7 +90,7 @@ async function run() {
         })
 
         // Delete appoinment by ID
-        app.delete("/appoinment/:id", async (req, res) => {
+        app.delete("/appoinment/:id", verifyJWTToken, async (req, res) => {
             const { id } = req.params;
             const result = await appointmentsCollection.deleteOne({ _id: new ObjectId(id) })
 
@@ -98,7 +98,7 @@ async function run() {
         })
 
         // Update appoinment by ID
-        app.patch("/appointment/:id", async (req, res) => {
+        app.patch("/appointment/:id", verifyJWTToken, async (req, res) => {
             const { id } = req.params;
             const updatedData = req.body;
             const result = await appointmentsCollection.updateOne({ _id: new ObjectId(id) }, {
@@ -109,7 +109,7 @@ async function run() {
         })
 
         // Give rating to doctor
-        app.patch("/give-rating/:doctorName", async (req, res) => {
+        app.patch("/give-rating/:doctorName", verifyJWTToken, async (req, res) => {
             const { doctorName } = req.params;
             const { rating } = req.body;
 
