@@ -45,7 +45,7 @@ const verifyJWTToken = async (req, res, next) => {
 
 async function run() {
     try {
-        await client.connect();
+        // await client.connect();
 
         const db = client.db('doc-appoints');
         const doctorsCollection = db.collection('doctors');
@@ -89,8 +89,8 @@ async function run() {
             res.send(data)
         })
 
-        // Delete appoinment by ID
-        app.delete("/appoinment/:id", verifyJWTToken, async (req, res) => {
+        // Delete appointment by ID
+        app.delete("/appointment/:id", verifyJWTToken, async (req, res) => {
             const { id } = req.params;
             const result = await appointmentsCollection.deleteOne({ _id: new ObjectId(id) })
 
@@ -132,7 +132,7 @@ async function run() {
         });
 
 
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // await client.close();
